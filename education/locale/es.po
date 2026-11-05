@@ -2303,12 +2303,12 @@ msgstr "Créditos del curso"
 #: education/education/sidebar/education/education.json:122
 #: education/education/workspace/education/education.json:267
 msgid "Course Enrollment"
-msgstr "Matrícula en curso"
+msgstr "Matrícula"
 
 #. Name of a DocType
 #: education/education/doctype/course_enrollment_subject/course_enrollment_subject.json:88
 msgid "Course Enrollment Subject"
-msgstr "Asignatura de la matrícula en curso"
+msgstr "Asignatura de la matrícula"
 
 #: education/education/doctype/student_applicant/student_applicant.js:134
 #, python-brace-format
@@ -2318,22 +2318,22 @@ msgstr "Se creó la matrícula {0} y se matriculó al estudiante en el curso."
 #: education/education/doctype/subject_registration/subject_registration.py:65
 #, python-brace-format
 msgid "Course Enrollment {0} does not exist."
-msgstr "La matrícula en curso {0} no existe."
+msgstr "La matrícula {0} no existe."
 
 #: education/education/doctype/course_activity/course_activity.py:18
 #, python-brace-format
 msgid "Course Enrollment {0} does not exists"
-msgstr "La matrícula en curso {0} no existe"
+msgstr "La matrícula {0} no existe"
 
 #: education/education/doctype/subject_registration/subject_registration.py:245
 #, python-brace-format
 msgid "Course Enrollment {0} is not submitted."
-msgstr "La matrícula en curso {0} no está confirmada."
+msgstr "La matrícula {0} no está confirmada."
 
 #: education/education/doctype/subject_registration/subject_registration.py:124
 #, python-brace-format
 msgid "Course Enrollment {0} must be submitted."
-msgstr "La matrícula en curso {0} debe estar confirmada."
+msgstr "La matrícula {0} debe estar confirmada."
 
 #: education/education/doctype/admission_register/templates/admission_register.html:79
 #: education/education/doctype/admission_register/templates/admission_register.html:95
@@ -3315,7 +3315,7 @@ msgstr "No se pudieron crear las facturas del plan de cuotas"
 
 #: education/education/doctype/fee_plan/fee_plan.py:33
 msgid "Fee Plan must be created from a Course Enrollment."
-msgstr "El plan de cuotas debe crearse a partir de una matrícula en curso."
+msgstr "El plan de cuotas debe crearse a partir de una matrícula."
 
 #: education/education/doctype/course_enrollment/course_enrollment.py:236
 msgid "Fee Plan was not created."
@@ -3324,7 +3324,7 @@ msgstr "No se creó el plan de cuotas."
 #: education/education/doctype/fee_plan/fee_plan.py:45
 #, python-brace-format
 msgid "Fee Plan {0} already exists for Course Enrollment {1}."
-msgstr "Ya existe el plan de cuotas {0} para la matrícula en curso {1}."
+msgstr "Ya existe el plan de cuotas {0} para la matrícula {1}."
 
 #. Label of a Card Break in the Education Workspace
 #: education/education/workspace/education/education.json:603
@@ -4722,7 +4722,7 @@ msgstr "No se encontró una matrícula del estudiante {0} en el curso {1}. Matri
 #: education/education/utils.py:157
 #, python-brace-format
 msgid "No Course Enrollment found for program {0}. Enroll the student through Admission."
-msgstr "No se encontró una matrícula en curso para el programa {0}. Matricule al estudiante mediante el proceso de admisión."
+msgstr "No se encontró una matrícula para el programa {0}. Matricule al estudiante mediante el proceso de admisión."
 
 #: education/education/doctype/course/course.py:151
 #, python-brace-format
@@ -6990,7 +6990,7 @@ msgstr "Datos de contacto de estudiantes y tutores"
 #: education/education/doctype/course_enrollment/course_enrollment.py:442
 #, python-brace-format
 msgid "Student is already enrolled via Course Enrollment {0}"
-msgstr "El estudiante ya está matriculado mediante la matrícula en curso {0}"
+msgstr "El estudiante ya está matriculado mediante la matrícula {0}"
 
 #: education/education/utils.py:191
 #, python-brace-format
@@ -7150,7 +7150,7 @@ msgstr "Asignatura de la inscripción"
 #: education/education/doctype/subject_registration/subject_registration.py:143
 #, python-brace-format
 msgid "Subject Registration {0} is already open for Course Enrollment {1}."
-msgstr "La inscripción en asignaturas {0} ya está abierta para la matrícula en curso {1}."
+msgstr "La inscripción en asignaturas {0} ya está abierta para la matrícula {1}."
 
 #. Label of the subject_schedule (Link) field in DocType 'Student Attendance'
 #. Option for the 'Based On' (Select) field in DocType 'Student Attendance
@@ -7296,7 +7296,7 @@ msgstr "Confirmar pedidos de venta generados desde matrículas o calendarios de 
 
 #: education/education/doctype/course_enrollment/course_enrollment.py:85
 msgid "Submit the Course Enrollment before creating a Fee Plan."
-msgstr "Confirme la matrícula en curso antes de crear un plan de cuotas."
+msgstr "Confirme la matrícula antes de crear un plan de cuotas."
 
 #. Option for the 'Status' (Select) field in DocType 'Admission Register'
 #. Option for the 'Invoice Status' (Select) field in DocType 'Fee Plan Detail'

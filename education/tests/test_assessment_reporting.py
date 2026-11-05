@@ -12,6 +12,7 @@ from education.education.report.course_wise_assessment_report import (
 	course_wise_assessment_report as course_report,
 )
 from education.education.report.final_assessment_grades import final_assessment_grades as final_report
+from education.education.doctype.student_report_generation_tool import student_report_generation_tool as report_card
 
 
 class TestAssessmentReporting(unittest.TestCase):
@@ -55,3 +56,18 @@ class TestAssessmentReporting(unittest.TestCase):
 		self.assertEqual(data[0].percentage_english_1, 82)
 		self.assertEqual(data[0].percentage_english_2, 90)
 		self.assertEqual(data[0].score_english_2, 45)
+
+	def test_report_card_counts_attendance_in_selected_term_with_native_aggregate(self):
+		lookup = Mock(return_value=("2026-01-01", "2026-06-30"))
+		with (
+			patch.object(frappe, "db", SimpleNamespace(get_value=lookup)),
+			patch.object(frappe, "get_all", return_value=[
+				frappe._dict(status="Present", attendance_count=8),
+				frappe._dict(status="Absent", attendance_count=2),
+			]) as query,
+		):
+			attendance = report_card.get_attendance_count("STU-1", "2026", "First term")
+		self.assertEqual(lookup.call_args.args[:2], ("Academic Term", "First term"))
+		self.assertEqual(query.call_args.args[1]["date"], ["between", ("2026-01-01", "2026-06-30")])
+		self.assertFalse(isinstance(query.call_args.args[2][1], str))
+		self.assertEqual((attendance.present, attendance.absent, attendance.total), (8, 2, 10))

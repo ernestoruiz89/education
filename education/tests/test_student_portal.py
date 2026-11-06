@@ -27,6 +27,20 @@ class TestStudentPortal(unittest.TestCase):
 		with self.assertRaises(frappe.AuthenticationError):
 			portal.get_dashboard()
 
+	def test_portal_boot_uses_frappe_language_without_caching_user_context(self):
+		from education.www.student_portal import get_context
+
+		for language in ("es", "en"):
+			with (
+				patch.object(frappe.local, "lang", language),
+				patch.object(frappe.db, "get_single_value", return_value=None),
+			):
+				context = frappe._dict()
+				get_context(context)
+			self.assertEqual(context.lang, language)
+			self.assertEqual(context.portal_boot["language"], language)
+			self.assertEqual(context.no_cache, 1)
+
 	def test_account_without_student_is_a_valid_empty_state(self):
 		with (
 			patch.object(frappe.db, "get_value", return_value=None) as get_value,

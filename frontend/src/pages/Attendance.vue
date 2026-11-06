@@ -3,7 +3,7 @@
     <div v-if="batches.length" class="px-5 mb-2 max-w-xl">
       <FormControl
         type="select"
-        label="Batch"
+        :label="__('Batch')"
         :options="batches"
         v-model="selectedBatch"
       />
@@ -12,16 +12,19 @@
     <MissingData v-else message="No attendance records for this batch" />
     <Dialog
       v-model="isAttendancePage"
-      :options="{ title: 'Request Leave', size: 'xl' }"
+      :options="{ title: __('Request Leave'), size: 'xl' }"
     >
       <template #body-content>
         <p class="text-base text-gray-600 mb-4">
-          Your request is saved for staff review. Attendance changes after
-          approval.
+          {{
+            __(
+              'Your request is saved for staff review. Attendance changes after approval.'
+            )
+          }}
         </p>
         <FormControl
           type="select"
-          label="Batch"
+          :label="__('Batch')"
           :options="batches.filter((b) => b.value)"
           v-model="leave.student_batch"
           class="mb-4"
@@ -31,9 +34,13 @@
       </template>
       <template #actions="{ close }">
         <div class="flex justify-end gap-2">
-          <Button label="Cancel" :disabled="request.loading" @click="close" />
           <Button
-            label="Send request"
+            :label="__('Cancel')"
+            :disabled="request.loading"
+            @click="close"
+          />
+          <Button
+            :label="__('Send request')"
             variant="solid"
             :loading="request.loading"
             :disabled="!validLeave"
@@ -46,6 +53,7 @@
 </template>
 
 <script setup>
+import { __ } from '@/i18n'
 import { computed, reactive, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { Dialog, FormControl, ErrorMessage, createResource } from 'frappe-ui'
@@ -60,7 +68,7 @@ const portal = studentStore()
 const { isAttendancePage } = storeToRefs(leaveStore())
 const selectedBatch = ref('')
 const batches = computed(() => [
-  { label: 'All batches', value: '' },
+  { label: __('All batches'), value: '' },
   ...portal.studentGroups.map((b) => ({ label: b.label, value: b.name })),
 ])
 const statusColors = {
@@ -75,7 +83,7 @@ const events = computed(() =>
     )
     .map((row) => ({
       name: row.name,
-      title: `${row.status}${
+      title: `${__(row.status)}${
         row.student_batch ? ' · ' + row.student_batch : ''
       }`,
       background_color: statusColors[row.status],
@@ -127,13 +135,14 @@ async function submitLeave() {
       total_days: '',
     })
     createToast({
-      title: 'Leave request saved for staff review',
+      title: __('Leave request saved for staff review'),
       icon: 'check',
       iconClasses: 'text-green-600',
     })
   } catch (err) {
-    error.value =
+    error.value = __(
       err.messages?.[0] || err.message || 'Unable to save your request'
+    )
   }
 }
 </script>

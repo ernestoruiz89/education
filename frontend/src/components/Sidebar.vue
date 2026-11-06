@@ -23,7 +23,7 @@
       </div>
     </div>
     <SidebarLink
-      :label="isSidebarCollapsed ? 'Expand' : 'Collapse'"
+      :label="__(isSidebarCollapsed ? 'Expand' : 'Collapse')"
       :isCollapsed="isSidebarCollapsed"
       @click="isSidebarCollapsed = !isSidebarCollapsed"
       class="m-2"
@@ -41,6 +41,7 @@
 </template>
 
 <script setup>
+import { __ } from '@/i18n'
 import { useStorage } from '@vueuse/core'
 import SidebarLink from '@/components/SidebarLink.vue'
 import {
@@ -63,22 +64,22 @@ const links = [
   // 	icon: LayoutDashboard,
   // },
   {
-    label: 'Schedule',
+    label: __('Schedule'),
     to: '/schedule',
     icon: CalendarCheck,
   },
   {
-    label: 'Grades',
+    label: __('Grades'),
     to: '/grades',
     icon: GraduationCap,
   },
   {
-    label: 'Fees',
+    label: __('Fees'),
     to: '/fees',
     icon: Banknote,
   },
   {
-    label: 'Attendance',
+    label: __('Attendance'),
     to: '/attendance',
     icon: UserCheck,
   },

@@ -2,8 +2,8 @@
   <div>
     <Dialog
       :options="{
-        title: 'Pay Fees',
-        actions: [{ label: 'Save', variant: 'solid' }],
+        title: __('Pay Fees'),
+        actions: [{ label: __('Save'), variant: 'solid' }],
       }"
       :modelValue="modelValue"
       @update:modelValue="emits('update:modelValue', $event)"
@@ -17,7 +17,9 @@
                 :key="field.name"
                 :class="field.hidden && 'hidden'"
               >
-                <div class="mb-2 text-sm text-gray-600">{{ field.label }}</div>
+                <div class="mb-2 text-sm text-gray-600">
+                  {{ __(field.label) }}
+                </div>
                 <FormControl
                   v-if="
                     field.name === 'mobile_number' || field.name === 'email'
@@ -38,12 +40,12 @@
                 />
                 <ErrorMessage
                   v-if="field.name === 'mobile_number' && !isMobilePresent"
-                  message="Mobile number is required"
+                  :message="__('Mobile number is required')"
                   class="pt-2"
                 />
                 <ErrorMessage
                   v-if="field.name === 'email' && !isEmailPresent"
-                  message="Email is Required"
+                  :message="__('Email is Required')"
                   class="pt-2"
                 />
               </div>
@@ -59,7 +61,7 @@
             @click="openPaymentGateway(close)"
             icon-left="external-link"
             :loading="paymentOptions.loading"
-            label="Proceed to Payment"
+            :label="__('Proceed to Payment')"
           />
         </div>
       </template>
@@ -67,6 +69,7 @@
   </div>
 </template>
 <script setup>
+import { __ } from '@/i18n'
 import { onMounted, reactive, ref } from 'vue'
 import { FormControl, Dialog, createResource, ErrorMessage } from 'frappe-ui'
 import { createToast } from '../utils'
@@ -197,7 +200,7 @@ function handleFailure(response) {
 function showError(err) {
   console.log(err)
   createToast({
-    message: 'Something went wrong',
+    message: __('Something went wrong'),
     icon: 'x',
     iconClasses: 'text-red-600',
   })
@@ -234,7 +237,7 @@ const allFields = [
         readonly: true,
       },
       {
-        label: 'Student',
+        label: 'Student ID',
         name: 'id',
         type: 'data',
         readonly: true,

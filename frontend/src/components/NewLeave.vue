@@ -7,7 +7,7 @@
           :key="field.name"
           :class="field.hidden && 'hidden'"
         >
-          <div class="mb-2 text-sm text-gray-600">{{ field.label }}</div>
+          <div class="mb-2 text-sm text-gray-600">{{ __(field.label) }}</div>
           <FormControl
             v-if="field.type === 'select'"
             type="select"
@@ -47,6 +47,7 @@
 </template>
 
 <script setup>
+import { __ } from '@/i18n'
 import { FormControl, ErrorMessage } from 'frappe-ui'
 import dayjs from 'dayjs'
 import { ref } from 'vue'
@@ -73,11 +74,11 @@ function setErrorMessage(diff = 0, dateType) {
   if (diff < 0) {
     if (dateType === 'from_date') {
       isBeforeError.value = true
-      errorMessage.value = 'From Date must be before To Date'
+      errorMessage.value = __('From Date must be before To Date')
       newLeave.total_days = 0
     } else if (dateType === 'to_date') {
       isAfterError.value = true
-      errorMessage.value = 'To Date must be after From Date'
+      errorMessage.value = __('To Date must be after From Date')
       newLeave.total_days = 0
     }
   } else {

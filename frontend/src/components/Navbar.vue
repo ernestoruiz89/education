@@ -4,7 +4,7 @@
   >
     <div class="flex gap-2 items-center cursor-pointer">
       <h3 class="font-medium text-lg text-gray-900">
-        {{ currentRoute }}
+        {{ __(currentRoute) }}
       </h3>
     </div>
     <div class="flex flex-row gap-2">
@@ -14,7 +14,7 @@
           portal.student.data?.can_request_leave
         "
         variant="solid"
-        label="Apply for Leave"
+        :label="__('Apply for Leave')"
         @click="setIsAttendancePage(true)"
         icon-left="plus"
       />
@@ -22,6 +22,7 @@
   </header>
 </template>
 <script setup>
+import { __ } from '@/i18n'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { leaveStore } from '@/stores/leave'

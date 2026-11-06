@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.png" />
@@ -12,15 +12,16 @@
     <div id="popovers"></div>
 
     <script>
+      window.education_boot = {{ portal_boot | tojson }}
       window.csrf_token = '{{ frappe.session.csrf_token }}'
-      window.document.title = '{{ abbr }}'
+      window.document.title = window.education_boot.name
       let link = document.querySelector("link[rel~='icon']");
       if (!link) {
         link = document.createElement('link');
         link.rel = 'icon';
         document.getElementsByTagName('head')[0].appendChild(link);
       }
-      link.href = '{{ logo }}'
+      link.href = window.education_boot.logo
     </script>
     <script type="module" src="/src/main.js"></script>
   </body>

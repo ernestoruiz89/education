@@ -61,7 +61,7 @@
           <div class="flex gap-2 items-center" v-if="event.room">
             <FeatherIcon name="circle" class="h-4 w-4" />
             <span class="text-sm font-normal">
-              Room No: &nbsp {{ event.room }}
+              {{ __('Room') }}: {{ event.room }}
             </span>
           </div>
         </div>
@@ -92,6 +92,7 @@
 </template>
 
 <script setup>
+import { __, formatDate } from '@/i18n'
 import { FeatherIcon, Popover } from 'frappe-ui'
 
 const props = defineProps({
@@ -153,10 +154,11 @@ let colorMap = {
 }
 
 function parseDate() {
-  let date = props.date.toDateString().split(' ').slice(0, 3)
-  let day = date[0]
-  let eventDate = date[1] + ' ' + date[2]
-  return `${day}, ${eventDate}`
+  return formatDate(props.date, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  })
 }
 </script>
 

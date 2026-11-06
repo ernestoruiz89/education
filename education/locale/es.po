@@ -8125,3 +8125,23 @@ msgstr "{} activos"
 msgid "{} Unpaid"
 msgstr "{} pendientes de pago"
 
+#: education/api/student_portal.py
+msgid "An active student profile is required."
+msgstr "Se requiere un expediente de estudiante activo."
+
+#: education/api/student_portal.py
+msgid "Select a batch you are enrolled in."
+msgstr "Selecciona un grupo en el que estés matriculado."
+
+#: education/api/student_portal.py
+msgid "Leave dates must be within your enrollment and batch dates."
+msgstr "Las fechas del permiso deben estar dentro del período de tu matrícula y del grupo."
+
+#: education/api/student_portal.py
+msgid "Reason is required"
+msgstr "Indica el motivo de tu solicitud."
+
+#: education/api/student_portal.py
+msgid "From Date must be before To Date"
+msgstr "La fecha inicial debe ser anterior o igual a la fecha final."
+

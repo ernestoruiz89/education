@@ -18,12 +18,14 @@
           variant="ghost"
           class="h-4 w-4"
           icon="chevron-left"
+          :label="__('Previous month')"
         />
         <Button
           @click="incrementMonth"
           variant="ghost"
           class="h-4 w-4"
           icon="chevron-right"
+          :label="__('Next month')"
         />
       </div>
     </div>
@@ -88,6 +90,7 @@
   </div>
 </template>
 <script setup>
+import { __, formatDate } from '@/i18n'
 import { getCalendarDates } from '../utils'
 import { computed, ref } from 'vue'
 import CalendarEvent from './CalendarEvent.vue'
@@ -105,37 +108,12 @@ const props = defineProps({
 let currentMonth = ref(new Date().getMonth())
 let currentYear = ref(new Date().getFullYear())
 
-let monthList = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-]
-
-let shortMonthList = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-]
-
-let daysList = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const shortMonthList = Array.from({ length: 12 }, (_, month) =>
+  formatDate(new Date(2023, month, 1), { month: 'short' })
+)
+const daysList = Array.from({ length: 7 }, (_, day) =>
+  formatDate(new Date(2023, 0, 1 + day), { weekday: 'short' })
+)
 
 let currentMonthDates = computed(() => {
   let allDates = getCalendarDates(currentMonth.value, currentYear.value)
@@ -156,7 +134,9 @@ function parseDate(date) {
 }
 
 function getMonth() {
-  return monthList[currentMonth.value]
+  return formatDate(new Date(currentYear.value, currentMonth.value, 1), {
+    month: 'long',
+  })
 }
 
 function incrementMonth() {

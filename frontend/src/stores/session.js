@@ -1,3 +1,4 @@
+import { __ } from '@/i18n'
 import { defineStore } from 'pinia'
 import { createResource } from 'frappe-ui'
 import { usersStore } from '@/stores/user'
@@ -23,7 +24,7 @@ export const sessionStore = defineStore('education-session', () => {
   const login = createResource({
     url: 'login',
     onError() {
-      throw new Error('Invalid email or password')
+      throw new Error(__('Invalid email or password'))
     },
     onSuccess() {
       user.value = sessionUser()

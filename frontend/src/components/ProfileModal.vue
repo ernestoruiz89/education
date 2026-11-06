@@ -2,7 +2,7 @@
   <Dialog
     v-model="showProfileDialog"
     :options="{
-      title: 'Profile',
+      title: __('Profile'),
       size: 'xl',
     }"
   >
@@ -38,16 +38,16 @@
                     v-if="field.label !== 'Address'"
                   >
                     <p class="w-1/2 text-sm text-gray-600">
-                      {{ field.label }}:&nbsp;
+                      {{ __(field.label) }}:&nbsp;
                     </p>
-                    <p class="w-1/2 text-gray-900">{{ field.value }}</p>
+                    <p class="w-1/2 text-gray-900">{{ __(field.value) }}</p>
                   </div>
                 </div>
               </div>
             </div>
             <div class="flex items-center">
               <p class="w-[32%] text-sm text-gray-600">
-                {{ infoFormat[0].fields[3].label }}:&nbsp;
+                {{ __(infoFormat[0].fields[3].label) }}:&nbsp;
               </p>
               <p class="w-full text-gray-900">
                 {{ infoFormat[0].fields[3].value }}
@@ -59,7 +59,11 @@
             class="flex items-center bg-gray-50 p-2 text-gray-600 text-sm rounded-md"
           >
             <FeatherIcon name="info" class="h-4 mr-2" />
-            In case of any incorrect details, please contact the school admin.
+            {{
+              __(
+                'In case of any incorrect details, please contact the school admin.'
+              )
+            }}
           </div>
         </div>
       </div>
@@ -68,6 +72,7 @@
 </template>
 
 <script setup>
+import { __, formatDate } from '@/i18n'
 import { Dialog, Avatar, FeatherIcon } from 'frappe-ui'
 import { inject } from 'vue'
 import { studentStore } from '@/stores/student'
@@ -87,11 +92,11 @@ const infoFormat = [
       },
       {
         label: 'Joining Date',
-        value: studentInfo.joining_date,
+        value: formatDate(studentInfo.joining_date),
       },
       {
         label: 'Date of Birth',
-        value: studentInfo.date_of_birth,
+        value: formatDate(studentInfo.date_of_birth),
       },
       {
         label: 'Address',

@@ -6,6 +6,12 @@ import { studentStore } from '@/stores/student'
 const routes = [
   { path: '/', redirect: '/schedule' },
   {
+    path: '/profile-required',
+    name: 'PortalStatus',
+    component: () => import('@/pages/PortalStatus.vue'),
+    meta: { portalStatus: true },
+  },
+  {
     path: '/schedule',
     name: 'Schedule',
     component: () => import('@/pages/Schedule.vue'),
@@ -36,20 +42,32 @@ let router = createRouter({
   routes,
 })
 
-router.beforeEach(async (to, from) => {
-  const { isLoggedIn, user: sessionUser } = sessionStore()
+router.beforeEach(async (to) => {
+  const { isLoggedIn } = sessionStore()
   const { user } = usersStore()
-  const { student } = studentStore()
+  const portal = studentStore()
 
   if (!isLoggedIn) {
-    window.location.href = '/login'
-    return await next(false)
+    const redirect = '/student-portal' + to.fullPath
+    window.location.replace(
+      '/login?redirect-to=' + encodeURIComponent(redirect)
+    )
+    return false
   }
 
-  if (user.data.length === 0) {
-    await user.reload()
+  try {
+    if (!user.data?.name) await user.reload()
+    if (!portal.student.data) await portal.student.reload()
+    if (!portal.studentInfo.name && to.name !== 'PortalStatus') {
+      return { name: 'PortalStatus' }
+    }
+    if (portal.studentInfo.name && to.name === 'PortalStatus') {
+      return { name: 'Schedule' }
+    }
+  } catch (error) {
+    portal.loadError = true
+    if (to.name !== 'PortalStatus') return { name: 'PortalStatus' }
   }
-  await student.reload()
 })
 
 export default router

@@ -72,7 +72,6 @@
     v-else
     class="w-full p-2 rounded-md"
     :class="event.background_color || 'bg-green-100'"
-    @click="togglePopover"
   >
     <div class="flex gap-3 relative px-2 items-start">
       <FeatherIcon name="circle" class="h-4 text-black" />

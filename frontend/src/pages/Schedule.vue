@@ -1,47 +1,29 @@
 <template>
   <div class="w-full h-full">
-    <Calendar
-      v-if="!scheduleResource.loading && scheduleResource.data"
-      :events="events"
-    />
+    <Calendar v-if="events.length" :events="events" />
+    <MissingData v-else message="No classes scheduled for your enrollments" />
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import Calendar from '@/components/Calendar.vue'
-import { createResource } from 'frappe-ui'
-import { ref } from 'vue'
+import MissingData from '@/components/MissingData.vue'
 import { studentStore } from '@/stores/student'
-const { getCurrentProgram, getStudentGroups } = studentStore()
 
-const programName = ref(getCurrentProgram()?.value?.program)
-const studentGroup = ref(getStudentGroups().value)
-const events = ref([])
-
-const scheduleResource = createResource({
-  url: 'education.education.api.get_course_schedule_for_student',
-  params: {
-    program_name: programName.value,
-    student_groups: studentGroup.value,
-  },
-  onSuccess: (response) => {
-    let schedule = []
-    response.forEach((classSchedule) => {
-      schedule.push({
-        title: classSchedule.title,
-        with: classSchedule.faculty_name,
-        name: classSchedule.name,
-        room: classSchedule.room,
-        date: classSchedule.schedule_date,
-        from_time: classSchedule.from_time.split('.')[0],
-        to_time: classSchedule.to_time.split('.')[0],
-        color: classSchedule.class_schedule_color,
-      })
-    })
-    events.value = schedule
-  },
-  auto: true,
-})
+const portal = studentStore()
+const time = (value) =>
+  value ? String(value).split('.')[0].padStart(8, '0').slice(0, 5) : ''
+const events = computed(() =>
+  (portal.student.data?.schedules || []).map((row) => ({
+    title: row.title || row.subject || row.course,
+    with: row.faculty_name,
+    name: row.name,
+    room: row.room,
+    date: row.schedule_date,
+    from_time: time(row.from_time),
+    to_time: time(row.to_time),
+    color: row.class_schedule_color,
+  }))
+)
 </script>
-
-<style></style>

@@ -22,7 +22,7 @@
               <p class="text-lg font-semibold">
                 {{ studentInfo.student_name }}
               </p>
-              <p class="text-gray-600">{{ studentInfo.student_email_id }}</p>
+              <p class="text-gray-600">{{ studentInfo.email_address }}</p>
             </div>
           </div>
           <div>

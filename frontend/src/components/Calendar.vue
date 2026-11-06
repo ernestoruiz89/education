@@ -96,7 +96,8 @@ import { groupBy } from '@/utils'
 
 const props = defineProps({
   events: {
-    type: Object,
+    type: Array,
+    default: () => [],
     required: false,
   },
 })

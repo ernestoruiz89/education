@@ -1,26 +1,27 @@
 <template>
-  <div v-if="tableData.rows.length > 0" class="px-5 py-4">
+  <div v-if="rows.length" class="px-5 py-4">
+    <p
+      v-if="!portal.student.data.payment_enabled"
+      class="mb-4 text-base text-gray-600"
+    >
+      Online payment is not configured. Contact the academy to pay an invoice.
+    </p>
     <ListView
-      :columns="tableData.columns"
-      :rows="tableData.rows"
-      :options="{
-        selectable: false,
-        showTooltip: false,
-        onRowClick: () => {},
-      }"
-      row-key="id"
-      v-if="tableData.rows.length > 0"
+      :columns="columns"
+      :rows="rows"
+      :options="{ selectable: false, showTooltip: false }"
+      row-key="name"
     >
       <ListHeader>
         <ListHeaderItem
-          v-for="column in tableData.columns"
+          v-for="column in columns"
           :key="column.key"
           :item="column"
         />
       </ListHeader>
       <ListRow
-        v-for="row in tableData.rows"
-        :key="row.id"
+        v-for="row in rows"
+        :key="row.name"
         :row="row"
         v-slot="{ column, item }"
       >
@@ -28,44 +29,48 @@
           <Badge
             v-if="column.key === 'status'"
             variant="subtle"
-            :theme="badgeColor(row.status) || 'gray'"
-            size="md"
+            :theme="badgeColor(row.status)"
             :label="item"
           />
-          <Button
-            v-if="column.key === 'cta' && row.status === 'Paid'"
-            @click="openInvoicePDF(row)"
-            class="hover:bg-gray-900 hover:text-white"
-            icon-left="download"
-            label="Download Invoice"
-          />
-
-          <Button
-            v-if="column.key === 'cta' && row.status !== 'Paid'"
-            @click="openModal(row)"
-            class="hover:bg-gray-900 hover:text-white flex flex-column items-center justify-center"
-            icon-left="credit-card"
-            label="Pay Now"
-          />
+          <div v-else-if="column.key === 'cta'" class="flex gap-2">
+            <Button
+              v-if="row.can_print"
+              @click="openInvoicePDF(row)"
+              icon-left="download"
+              label="Invoice PDF"
+            />
+            <Button
+              v-if="
+                portal.student.data.payment_enabled &&
+                row.outstanding_amount > 0
+              "
+              @click="openModal(row)"
+              icon-left="credit-card"
+              label="Pay Now"
+            />
+            <span
+              v-if="!row.can_print && !portal.student.data.payment_enabled"
+              class="text-gray-600"
+              >Contact the academy</span
+            >
+          </div>
+          <span v-else>{{ item }}</span>
         </ListRowItem>
       </ListRow>
     </ListView>
     <FeesPaymentDialog
-      v-if="currentRow"
+      v-if="currentRow && showPaymentDialog"
       :row="currentRow"
-      :student="studentInfo"
+      :student="portal.studentInfo"
       v-model="showPaymentDialog"
-      @success="success()"
+      @success="success"
     />
   </div>
-
-  <div v-else>
-    <MissingData message="No Fees found" />
-  </div>
+  <MissingData v-else message="No invoices found" />
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 import {
   ListView,
   ListHeader,
@@ -73,109 +78,61 @@ import {
   ListRow,
   ListRowItem,
   Badge,
-  createResource,
 } from 'frappe-ui'
 import FeesPaymentDialog from '@/components/FeesPaymentDialog.vue'
 import { studentStore } from '@/stores/student'
 import MissingData from '@/components/MissingData.vue'
 import { createToast } from '@/utils'
 
-const { getStudentInfo } = studentStore()
-let studentInfo = getStudentInfo().value
-
-const feesResource = createResource({
-  url: 'education.education.api.get_student_invoices',
-  params: {
-    student: studentInfo.name,
-  },
-  onSuccess: (response) => {
-    printFormat = response?.print_format
-    let invoices = response?.invoices
-    invoices = invoices.sort((a, b) => {
-      const statusOrder = { Overdue: 0, Unpaid: 1, Paid: 2 }
-
-      const statusA = statusOrder[a.status]
-      const statusB = statusOrder[b.status]
-
-      if (statusA !== statusB) {
-        return statusA - statusB
-      }
-    })
-    tableData.rows = invoices
-  },
-  auto: true,
-})
-
-const tableData = reactive({
-  rows: [],
-  columns: [
-    {
-      label: 'Program',
-      key: 'program',
-      width: 1,
-    },
-    {
-      label: 'Status',
-      key: 'status',
-      width: 1,
-    },
-    {
-      label: 'Payment Date',
-      key: 'payment_date',
-      width: 1,
-    },
-    {
-      label: 'Due Date',
-      key: 'due_date',
-      width: 1,
-    },
-    {
-      label: 'Amount',
-      key: 'amount',
-      width: 1,
-    },
-    {
-      label: 'Invoice',
-      key: 'cta',
-      width: 1,
-    },
-  ],
-})
-
+const portal = studentStore()
+const money = (value, currency) =>
+  new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(
+    Number(value || 0)
+  )
+const rows = computed(() =>
+  (portal.student.data?.invoices || []).map((row) => ({
+    ...row,
+    invoice: row.name,
+    amount: money(row.outstanding_amount, row.currency),
+    total: money(row.grand_total, row.currency),
+  }))
+)
+const columns = [
+  { label: 'Invoice', key: 'name' },
+  { label: 'Status', key: 'status' },
+  { label: 'Due Date', key: 'due_date' },
+  { label: 'Total', key: 'total' },
+  { label: 'Outstanding', key: 'amount' },
+  { label: 'Actions', key: 'cta', width: 2 },
+]
 const currentRow = ref(null)
 const showPaymentDialog = ref(false)
-
-let printFormat = 'Standard'
-const openInvoicePDF = (row) => {
-  let url = `/api/method/frappe.utils.print_format.download_pdf?
-		doctype=${encodeURIComponent('Sales Invoice')}
-		&name=${encodeURIComponent(row.invoice)}
-		&format=${encodeURIComponent(printFormat)}
-	`
-  window.open(url, '_blank')
+function openInvoicePDF(row) {
+  const params = new URLSearchParams({
+    doctype: 'Sales Invoice',
+    name: row.name,
+    format: portal.student.data.print_format || 'Standard',
+  })
+  window.open(
+    '/api/method/frappe.utils.print_format.download_pdf?' + params,
+    '_blank',
+    'noopener'
+  )
 }
-
-const openModal = (row) => {
+function openModal(row) {
   currentRow.value = row
   showPaymentDialog.value = true
 }
-
-const success = () => {
-  feesResource.reload()
+async function success() {
+  await portal.student.reload()
   createToast({
     title: 'Payment successful',
     icon: 'check',
     iconClasses: 'text-green-600',
   })
 }
-
-const badgeColor = (status) => {
-  const badgeColorMap = {
-    Paid: 'green',
-    Unpaid: 'red',
-    Overdue: 'red',
-    'Partly Paid': 'orange',
-  }
-  return badgeColorMap[status]
-}
+const badgeColor = (status) =>
+  ({ Paid: 'green', Unpaid: 'red', Overdue: 'red', 'Partly Paid': 'orange' }[
+    status
+  ] || 'gray')
 </script>

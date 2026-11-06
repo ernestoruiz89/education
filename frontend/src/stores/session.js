@@ -26,10 +26,9 @@ export const sessionStore = defineStore('education-session', () => {
       throw new Error('Invalid email or password')
     },
     onSuccess() {
-      currentUser.reload()
-      sessionUser.reload()
-      student.reload()
       user.value = sessionUser()
+      currentUser.reset()
+      student.reset()
       login.reset()
       router.replace({ path: '/' })
     },

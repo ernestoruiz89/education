@@ -214,7 +214,7 @@ const billingDetails = reactive({
   amount: props.row.amount || '',
   id: props.student.name || '',
   mobile_number: '',
-  email: props.student.student_email_id || '',
+  email: props.student.email_address || '',
   address_line_1: props.student.address_line_1 || '',
   address_line_2: props.student.address_line_2 || '',
   city: props.student.city || '',

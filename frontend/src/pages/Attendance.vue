@@ -1,169 +1,139 @@
 <template>
   <div class="py-4 flex flex-col">
-    <div class="px-5 flex items-center gap-2">
-      <h2 class="font-semibold text-2xl">{{ programName }}</h2>
-      <Dropdown :options="allStudentGroups">
-        <template #default="{ open }">
-          <Button :label="selectedGroup">
-            <template #suffix>
-              <FeatherIcon
-                :name="open ? 'chevron-up' : 'chevron-down'"
-                class="h-4 text-gray-600"
-              />
-            </template>
-          </Button>
-        </template>
-      </Dropdown>
-    </div>
-    <div class="h-full">
-      <Calendar
-        v-if="!attendanceResource.loading && attendanceResource.data"
-        :events="attendanceResource.data"
+    <div v-if="batches.length" class="px-5 mb-2 max-w-xl">
+      <FormControl
+        type="select"
+        label="Batch"
+        :options="batches"
+        v-model="selectedBatch"
       />
-      <Calendar v-else :events="[]" />
     </div>
+    <Calendar v-if="events.length" :events="events" />
+    <MissingData v-else message="No attendance records for this batch" />
     <Dialog
       v-model="isAttendancePage"
-      :options="{
-        size: '2xl',
-        title: 'Apply Leave',
-        actions: [{ label: 'Save', variant: 'solid' }],
-      }"
+      :options="{ title: 'Request Leave', size: 'xl' }"
     >
       <template #body-content>
-        <NewLeave :newLeave="newLeave" />
+        <p class="text-base text-gray-600 mb-4">
+          Your request is saved for staff review. Attendance changes after
+          approval.
+        </p>
+        <FormControl
+          type="select"
+          label="Batch"
+          :options="batches.filter((b) => b.value)"
+          v-model="leave.student_batch"
+          class="mb-4"
+        />
+        <NewLeave :newLeave="leave" />
+        <ErrorMessage :message="error" class="mt-4" />
       </template>
       <template #actions="{ close }">
-        <div class="flex flex-row-reverse gap-2">
+        <div class="flex justify-end gap-2">
+          <Button label="Cancel" :disabled="request.loading" @click="close" />
           <Button
-            :disabled="
-              !newLeave.from_date ||
-              !newLeave.to_date ||
-              !newLeave.total_days ||
-              !newLeave.reason
-            "
+            label="Send request"
             variant="solid"
-            label="Save"
-            @click="applyLeave.submit()"
+            :loading="request.loading"
+            :disabled="!validLeave"
+            @click="submitLeave"
           />
         </div>
       </template>
     </Dialog>
   </div>
 </template>
+
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { Dialog, FormControl, ErrorMessage, createResource } from 'frappe-ui'
 import { leaveStore } from '@/stores/leave'
 import { studentStore } from '@/stores/student'
-
-import { Dialog, createResource, Dropdown, FeatherIcon } from 'frappe-ui'
-import { storeToRefs } from 'pinia'
 import NewLeave from '@/components/NewLeave.vue'
 import Calendar from '@/components/Calendar.vue'
+import MissingData from '@/components/MissingData.vue'
 import { createToast } from '@/utils'
 
-const { getCurrentProgram, getStudentInfo, getStudentGroups } = studentStore()
-const programName = ref(getCurrentProgram().value?.program)
-
-let studentInfo = getStudentInfo().value
-
-// storeToRefs converts isAttendancePage to a ref, hence achieving reactivity
+const portal = studentStore()
 const { isAttendancePage } = storeToRefs(leaveStore())
-
-onMounted(() => {
-  setStudentGroup()
-})
-
-const selectedGroup = ref('Select Student Group')
-const allStudentGroups = ref()
-function setStudentGroup() {
-  allStudentGroups.value = getStudentGroups().value
-  allStudentGroups.value.forEach(
-    (group) =>
-      (group.onClick = () => {
-        if (group.label === selectedGroup.value) return
-        selectedGroup.value = group.label
-        attendanceResource.reload()
-      })
-  )
-  selectedGroup.value =
-    allStudentGroups.value[0].label || 'Select Student Group'
-  attendanceResource.update({
-    params: {
-      student_group: selectedGroup.value,
-      student: studentInfo.name,
-    },
-  })
-  attendanceResource.reload()
+const selectedBatch = ref('')
+const batches = computed(() => [
+  { label: 'All batches', value: '' },
+  ...portal.studentGroups.map((b) => ({ label: b.label, value: b.name })),
+])
+const statusColors = {
+  Present: 'bg-green-100',
+  Absent: 'bg-red-200',
+  Leave: 'bg-orange-100',
 }
-
-const newLeave = reactive({
-  student: studentInfo.name,
-  student_name: studentInfo.student_name,
+const events = computed(() =>
+  (portal.student.data?.attendance || [])
+    .filter(
+      (row) => !selectedBatch.value || row.student_batch === selectedBatch.value
+    )
+    .map((row) => ({
+      name: row.name,
+      title: `${row.status}${
+        row.student_batch ? ' · ' + row.student_batch : ''
+      }`,
+      background_color: statusColors[row.status],
+      date: row.date,
+      status: row.status,
+    }))
+)
+const leave = reactive({
+  student: portal.studentInfo.student_name,
+  student_batch: '',
   from_date: '',
   to_date: '',
   reason: '',
   total_days: '',
 })
-
-const attendanceStatus = {
-  Present: 'bg-green-100',
-  Absent: 'bg-red-200',
-  Leave: 'bg-orange-100',
-}
-
-const attendanceResource = createResource({
-  url: 'education.education.api.get_student_attendance',
-  params: {
-    student_group: selectedGroup.value,
-    student: studentInfo.name,
-  },
-  transform: (attendance) => {
-    // filter attendance to remove duplicate attendance data
-    attendance = attendance.filter(
-      (attendance, index, self) =>
-        index === self.findIndex((t) => t.date === attendance.date)
-    )
-
-    let events = []
-
-    attendance.forEach((attendance) => {
-      events.push({
-        name: attendance.name,
-        title: attendance.status,
-        background_color: attendanceStatus[attendance.status],
-        date: attendance.date,
-        status: attendance.status,
-      })
-    })
-    return events
-  },
-  onError: (err) => {
-    console.log('Error', err)
-  },
+const error = ref('')
+watch(isAttendancePage, (open) => {
+  if (open) {
+    error.value = ''
+    leave.student_batch =
+      selectedBatch.value || portal.studentGroups[0]?.name || ''
+  }
 })
-
-const applyLeave = createResource({
-  url: 'education.education.api.apply_leave',
-  params: {
-    leave_data: newLeave,
-    program_name: programName.value,
-  },
-  onSuccess: () => {
+const validLeave = computed(
+  () =>
+    leave.student_batch &&
+    leave.from_date &&
+    leave.to_date &&
+    leave.from_date <= leave.to_date &&
+    leave.reason.trim()
+)
+const request = createResource({
+  url: 'education.api.student_portal.request_leave',
+})
+async function submitLeave() {
+  error.value = ''
+  try {
+    await request.submit({
+      student_batch: leave.student_batch,
+      from_date: leave.from_date,
+      to_date: leave.to_date,
+      reason: leave.reason,
+    })
     isAttendancePage.value = false
-    attendanceResource.reload()
+    Object.assign(leave, {
+      from_date: '',
+      to_date: '',
+      reason: '',
+      total_days: '',
+    })
     createToast({
-      title: 'Leave applied successfully',
+      title: 'Leave request saved for staff review',
       icon: 'check',
       iconClasses: 'text-green-600',
     })
-  },
-  onError: (err) => {
-    createToast({
-      title: err.messages[0] ?? 'Error Occured',
-      icon: 'x',
-      iconClasses: 'text-red-600',
-    })
-  },
-})
+  } catch (err) {
+    error.value =
+      err.messages?.[0] || err.message || 'Unable to save your request'
+  }
+}
 </script>

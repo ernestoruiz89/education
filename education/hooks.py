@@ -49,6 +49,23 @@ website_route_rules = [
 	{"from_route": "/student-portal/<path:app_path>", "to_route": "student-portal"},
 ]
 
+# Older builds used /education. Always serve the current Vite entry point,
+# including bookmarks to pages inside the student portal.
+website_redirects = [
+	{
+		"source": "/education",
+		"target": "/student-portal",
+		"redirect_http_status": 307,
+		"forward_query_parameters": True,
+	},
+	{
+		"source": r"/education/(.*)",
+		"target": r"/student-portal/\1",
+		"redirect_http_status": 307,
+		"forward_query_parameters": True,
+	},
+]
+
 treeviews = ["Assessment Group"]
 
 calendars = [

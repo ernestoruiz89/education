@@ -6,50 +6,34 @@ export const studentStore = defineStore('education-student', () => {
   const studentInfo = ref({})
   const currentProgram = ref({})
   const studentGroups = ref([])
-
+  const loadError = ref(false)
   const student = createResource({
-    url: 'education.education.api.get_student_info',
-    onSuccess(info) {
-      if (!info) {
-        window.location.href = '/app'
-      }
-      currentProgram.value = info.current_program
-      // remove current_program from info
-      delete info.current_program
-      studentGroups.value = info.student_groups
-      delete info.student_groups
-      studentInfo.value = info
+    url: 'education.api.student_portal.get_dashboard',
+    onSuccess(data) {
+      loadError.value = false
+      studentInfo.value = data.student || {}
+      currentProgram.value = data.enrollments?.[0] || {}
+      studentGroups.value = (data.batches || []).map((batch) => ({
+        ...batch,
+        label: batch.batch_name || batch.name,
+      }))
     },
-    onError(err) {
-      console.error(err)
+    onError() {
+      loadError.value = true
+      studentInfo.value = {}
+      currentProgram.value = {}
+      studentGroups.value = []
     },
   })
-
-  // const s = createDocumentResource({
-  // 	doctype:"Student",
-  // 	whitelist: {
-  // 		'get_student_info': get_student_info
-  // 	}
-  // })
-
-  function getStudentInfo() {
-    return studentInfo
-  }
-  function getCurrentProgram() {
-    return currentProgram
-  }
-
-  function getStudentGroups() {
-    return studentGroups
-  }
 
   return {
     student,
     studentInfo,
     currentProgram,
     studentGroups,
-    getStudentInfo,
-    getCurrentProgram,
-    getStudentGroups,
+    loadError,
+    getStudentInfo: () => studentInfo,
+    getCurrentProgram: () => currentProgram,
+    getStudentGroups: () => studentGroups,
   }
 })

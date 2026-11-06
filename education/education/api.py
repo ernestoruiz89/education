@@ -478,11 +478,12 @@ def get_user_info():
 	if frappe.session.user == "Guest":
 		frappe.throw(_("Authentication failed"), exc=frappe.AuthenticationError)
 
-	current_user = frappe.db.get_list(
+	current_user = frappe.db.get_value(
 		"User",
-		fields=["name", "email", "enabled", "user_image", "full_name", "user_type"],
-		filters={"name": frappe.session.user},
-	)[0]
+		frappe.session.user,
+		["name", "email", "enabled", "user_image", "full_name", "user_type"],
+		as_dict=True,
+	)
 	current_user["session_user"] = True
 	return current_user
 

@@ -9,7 +9,10 @@
     </div>
     <div class="flex flex-row gap-2">
       <Button
-        v-if="currentRoute === 'Attendance'"
+        v-if="
+          currentRoute === 'Attendance' &&
+          portal.student.data?.can_request_leave
+        "
         variant="solid"
         label="Apply for Leave"
         @click="setIsAttendancePage(true)"
@@ -22,8 +25,10 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { leaveStore } from '@/stores/leave'
+import { studentStore } from '@/stores/student'
 
 const router = useRouter()
+const portal = studentStore()
 const currentRoute = computed(() => router.currentRoute.value.name)
 
 const { setIsAttendancePage } = leaveStore()

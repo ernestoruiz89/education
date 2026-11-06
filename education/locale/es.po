@@ -8145,3 +8145,43 @@ msgstr "Indica el motivo de tu solicitud."
 msgid "From Date must be before To Date"
 msgstr "La fecha inicial debe ser anterior o igual a la fecha final."
 
+
+#: education/education/doctype/student_leave_application/student_leave_application.py
+msgid "Select a student batch or subject schedule for this application."
+msgstr "Selecciona un grupo o una clase para esta solicitud."
+
+#: education/education/doctype/student_leave_application/student_leave_application.py
+msgid "You may only request leave for your own student profile."
+msgstr "Solo puedes solicitar permisos para tu propio expediente de estudiante."
+
+#: education/education/doctype/student_leave_application/student_leave_application.py
+msgid "The class must be active and within the leave dates."
+msgstr "La clase debe estar activa y dentro de las fechas del permiso."
+
+#: education/education/doctype/student_leave_application/student_leave_application.py
+msgid "The student must be enrolled in the selected batch."
+msgstr "El estudiante debe estar matriculado en el grupo seleccionado."
+
+#: education/education/doctype/student_leave_application/student_leave_application.py
+msgid "Leave dates must be within the batch dates."
+msgstr "Las fechas del permiso deben estar dentro del período del grupo."
+
+#: education/education/doctype/student_leave_application/student_leave_application.py
+msgid "Leave dates must precede the student's leaving date."
+msgstr "Las fechas del permiso deben ser anteriores a la fecha de retiro del estudiante."
+
+#: education/education/doctype/student_leave_application/student_leave_application.py
+msgid "Attendance already exists for this class or group and date. Resolve it before approving leave."
+msgstr "Ya existe asistencia para esta clase o grupo y fecha. Revisa ese registro antes de aprobar el permiso."
+
+#: education/education/doctype/student_leave_application/student_leave_application.py
+msgid "Linked attendance does not match this leave application."
+msgstr "La asistencia vinculada no corresponde a esta solicitud de permiso."
+
+#: education/education/doctype/student_leave_application/student_leave_application.py
+msgid "Resolve linked draft attendance before cancelling leave."
+msgstr "Revisa las asistencias vinculadas en borrador antes de cancelar el permiso."
+
+#: education/education/doctype/student_leave_application/student_leave_application.py
+msgid "Attendance must match an approved leave application."
+msgstr "La asistencia debe corresponder a una solicitud de permiso aprobada."

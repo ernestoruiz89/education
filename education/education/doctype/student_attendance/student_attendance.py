@@ -15,12 +15,36 @@ from education.education.api import get_batch_students, validate_attendance_date
 class StudentAttendance(Document):
 	def validate(self):
 		self.validate_mandatory()
+		self.validate_leave_application()
 		self.validate_date()
 		self.set_date()
 		self.set_student_batch()
 		self.validate_student()
 		self.validate_duplication()
 		self.validate_is_holiday()
+
+	def validate_leave_application(self):
+		if not self.leave_application:
+			return
+		leave = frappe.get_doc("Student Leave Application", self.leave_application)
+		day = (
+			frappe.db.get_value("Subject Schedule", self.subject_schedule, "schedule_date")
+			if self.subject_schedule
+			else self.date
+		)
+		matches = (
+			self.subject_schedule == leave.subject_schedule
+			if leave.attendance_based_on == "Subject Schedule"
+			else self.student_batch == leave.student_batch and not self.subject_schedule
+		)
+		if (
+			leave.docstatus != 1
+			or leave.student != self.student
+			or not matches
+			or not getdate(leave.from_date) <= getdate(day) <= getdate(leave.to_date)
+			or self.status != ("Present" if leave.mark_as_present else "Leave")
+		):
+			frappe.throw(_("Attendance must match an approved leave application."), frappe.PermissionError)
 
 	def set_date(self):
 		if self.subject_schedule:

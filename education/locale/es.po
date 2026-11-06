@@ -8185,3 +8185,6 @@ msgstr "Revisa las asistencias vinculadas en borrador antes de cancelar el permi
 #: education/education/doctype/student_leave_application/student_leave_application.py
 msgid "Attendance must match an approved leave application."
 msgstr "La asistencia debe corresponder a una solicitud de permiso aprobada."
+
+msgid "Room {0} seats {1}, but Batch {2} requires {3} places."
+msgstr "El aula {0} tiene {1} asientos, pero el grupo {2} requiere {3} plazas."

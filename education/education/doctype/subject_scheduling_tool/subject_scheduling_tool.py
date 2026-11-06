@@ -45,26 +45,19 @@ class SubjectSchedulingTool(Document):
 				rescheduled, reschedule_errors, days
 			)
 
-		date = getdate(self.from_date)
-		end_date = getdate(self.to_date)
-		slots_by_day = {}
-		for slot in self.slots:
-			slots_by_day.setdefault(slot.day, []).append(slot)
-
-		while date <= end_date:
-			day_name = calendar.day_name[date.weekday()]
-			for slot in slots_by_day.get(day_name, []):
-				subject_schedule = self.make_subject_schedule(date, slot)
-				try:
-					subject_schedule.save()
-				except OverlapError:
-					subject_schedules_errors.append(
-						{"date": date, "subject": slot.subject, "faculty": slot.faculty}
-					)
-				else:
-					subject_schedules.append(subject_schedule)
-
-			date = add_days(date, 1)
+		for subject_schedule in self.iter_subject_schedules():
+			try:
+				subject_schedule.save()
+			except OverlapError:
+				subject_schedules_errors.append(
+					{
+						"date": subject_schedule.schedule_date,
+						"subject": subject_schedule.subject,
+						"faculty": subject_schedule.faculty,
+					}
+				)
+			else:
+				subject_schedules.append(subject_schedule)
 
 		return dict(
 			subject_schedules=subject_schedules,
@@ -72,6 +65,18 @@ class SubjectSchedulingTool(Document):
 			rescheduled=rescheduled,
 			reschedule_errors=reschedule_errors,
 		)
+
+	def iter_subject_schedules(self):
+		"""Expand validated weekly slots for both preview and native creation."""
+		date = getdate(self.from_date)
+		end_date = getdate(self.to_date)
+		slots_by_day = {}
+		for slot in self.slots:
+			slots_by_day.setdefault(slot.day, []).append(slot)
+		while date <= end_date:
+			for slot in slots_by_day.get(calendar.day_name[date.weekday()], []):
+				yield self.make_subject_schedule(date, slot)
+			date = add_days(date, 1)
 
 	def set_course_from_batch(self):
 		if not self.student_batch:

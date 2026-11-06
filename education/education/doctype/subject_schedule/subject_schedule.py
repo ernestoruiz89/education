@@ -11,6 +11,7 @@ from frappe.utils import formatdate, get_time, getdate
 
 from education.education.doctype.campus.campus import apply_room_campus
 from education.education.doctype.faculty.faculty import faculty_teaches_subject
+from education.education.doctype.room.room import validate_academic_room_capacity
 
 
 class SubjectSchedule(Document):
@@ -24,6 +25,7 @@ class SubjectSchedule(Document):
 		self.validate_date()
 		apply_room_campus(self)
 		self.validate_overlap()
+		validate_academic_room_capacity(self)
 
 	def before_save(self):
 		self.set_hex_color()

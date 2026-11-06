@@ -8,6 +8,7 @@ from frappe.model.document import Document
 from frappe.utils import flt, getdate
 
 from education.education.doctype.campus.campus import apply_room_campus
+from education.education.doctype.room.room import validate_academic_room_capacity
 
 
 class AssessmentPlan(Document):
@@ -18,6 +19,7 @@ class AssessmentPlan(Document):
 		self.validate_subject()
 		self.validate_academic_year_and_term()
 		self.validate_company()
+		validate_academic_room_capacity(self)
 
 	def validate_subject(self):
 		if not (self.subject and self.course):

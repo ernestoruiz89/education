@@ -12,6 +12,33 @@ from education.education.doctype.building.building import get_building_location,
 from education.education.doctype.campus.campus import validate_campus
 from education.education.doctype.facility.facility import validate_facilities
 from education.education.doctype.floor.floor import validate_floor_in_building
+from education.education.doctype.student_batch_name.student_batch_name import get_batch_occupancy
+
+
+def get_batch_seat_requirement(student_batch):
+	"""Plan for configured seats and already occupied/reserved places."""
+	from frappe.utils import cint
+
+	maximum = cint(frappe.db.get_value("Student Batch Name", student_batch, "max_strength"))
+	return max(maximum, get_batch_occupancy(student_batch))
+
+
+def validate_academic_room_capacity(doc):
+	"""Classes and assessments must fit their group's planned capacity."""
+	from frappe.utils import cint
+
+	if not doc.get("room") or not doc.get("student_batch") or doc.docstatus == 2:
+		return
+	capacity = cint(frappe.db.get_value("Room", doc.room, "seating_capacity"))
+	if not capacity:
+		return
+	required = get_batch_seat_requirement(doc.student_batch)
+	if required > capacity:
+		frappe.throw(
+			_("Room {0} seats {1}, but Batch {2} requires {3} places.").format(
+				frappe.bold(doc.room), capacity, frappe.bold(doc.student_batch), required
+			)
+		)
 
 
 class Room(Document):

@@ -40,11 +40,14 @@ class Guardian(Document):
 @frappe.whitelist()
 def invite_guardian(guardian: str):
 	guardian_doc = frappe.get_doc("Guardian", guardian)
+	guardian_doc.check_permission("read")
+	guardian_doc.check_permission("write")
 	if not guardian_doc.email_address:
 		frappe.throw(_("Please set Email Address"))
 	else:
 		guardian_as_user = frappe.get_value("User", dict(email=guardian_doc.email_address))
 		if guardian_as_user:
+			frappe.get_doc("User", guardian_as_user).check_permission("read")
 			frappe.msgprint(_("User {0} already exists").format(getlink("User", guardian_as_user)))
 			return guardian_as_user
 		else:
@@ -56,6 +59,6 @@ def invite_guardian(guardian: str):
 					"user_type": "Website User",
 					"send_welcome_email": 1,
 				}
-			).insert(ignore_permissions=True)
+			).insert()
 			frappe.msgprint(_("User {0} created").format(getlink("User", user.name)))
 			return user.name

@@ -125,6 +125,7 @@ class TestStudentPortal(unittest.TestCase):
 		):
 			with (
 				patch.object(frappe, "get_hooks", return_value=website_redirects),
+				patch.object(frappe, "get_website_settings", return_value=[]),
 				patch.object(frappe.cache, "hget", return_value=None),
 				patch.object(frappe.cache, "hset"),
 				self.assertRaises(frappe.Redirect) as redirect,
